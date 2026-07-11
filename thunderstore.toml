@@ -3,9 +3,9 @@ schemaVersion = "0.0.1"
 
 [package]
 namespace = "Sparroh"
-name = "ToggleAim"
-description = "Press AIM to toggle aiming. No more holding the button!"
-websiteUrl = "https://github.com/Little-Sparroh/ToggleAim"
+name = "MovementToggles"
+description = "Adds optional toggle aim and toggle crouch for Mycopunk. Aim becomes press-to-toggle instead of hold; crouch stays engaged until toggled off."
+websiteUrl = "https://github.com/Little-Sparroh/MovementToggles"
 containsNsfwContent = false
 
 [package.dependencies]
@@ -17,8 +17,8 @@ readme = "README.md"
 outdir = "build"
 
 [[build.copy]]
-source = "bin/Release/net48/ToggleAim.dll"
-target = "BepInEx/plugins/ToggleAim.dll"
+source = "bin/Release/net48/MovementToggles.dll"
+target = "BepInEx/plugins/MovementToggles.dll"
 
 [[build.copy]]
 source = "CHANGELOG.md"
@@ -34,5 +34,3 @@ communities = [ "mycopunk" ]
 
 [publish.categories]
 mycopunk = [ "client" ]
-
-
