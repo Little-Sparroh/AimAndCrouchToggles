@@ -1,10 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Toggle Aim no longer forces ADS on weapons that have aiming disabled (`canAim` / `IsAimEnabled` false), including Gunship Cannon (Mini Cannon), Plate Launcher, and Carver
+
 ## 1.1.0
 
 - Initial release
 - Toggle Aim: press to enter/exit ADS instead of hold
 - Toggle Crouch: press slide/crouch to stay crouched until pressed again
+
 
 1.0.1 (2025-10-07)
 

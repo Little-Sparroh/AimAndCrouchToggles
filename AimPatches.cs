@@ -31,13 +31,17 @@ public static class ToggleAimPatches
     [HarmonyPrefix]
     public static void HandleAimPrefix(Gun __instance)
     {
-        if (AimAndCrouchTogglesPlugin.toggleAim.Value)
+        // Vanilla only subscribes to Aim input when canAim/IsAimEnabled is true.
+        // Forcing isAimInputHeld on no-aim weapons (Mini Cannon, Plate Launcher,
+        // Carver, etc.) incorrectly enables ADS because HandleAim/CanAim do not
+        // re-check canAim themselves.
+        if (!AimAndCrouchTogglesPlugin.toggleAim.Value || !__instance.IsAimEnabled)
+            return;
+
+        AimAndCrouchTogglesPlugin.isAimInputHeldField.SetValue(__instance, AimAndCrouchTogglesPlugin.isAimToggled);
+        if (AimAndCrouchTogglesPlugin.isAimToggled)
         {
-            AimAndCrouchTogglesPlugin.isAimInputHeldField.SetValue(__instance, AimAndCrouchTogglesPlugin.isAimToggled);
-            if (AimAndCrouchTogglesPlugin.isAimToggled)
-            {
-                AimAndCrouchTogglesPlugin.lastPressedAimTimeField.SetValue(__instance, Time.time);
-            }
+            AimAndCrouchTogglesPlugin.lastPressedAimTimeField.SetValue(__instance, Time.time);
         }
     }
 
@@ -45,19 +49,20 @@ public static class ToggleAimPatches
     [HarmonyPostfix]
     public static void UpdatePostfix(Gun __instance)
     {
-        if (AimAndCrouchTogglesPlugin.toggleAim.Value)
+        if (!AimAndCrouchTogglesPlugin.toggleAim.Value || !__instance.IsAimEnabled)
+            return;
+
+        bool isAiming = (bool)AimAndCrouchTogglesPlugin.isAimingGetter.Invoke(__instance, null);
+        bool wantsToFire = (bool)AimAndCrouchTogglesPlugin.wantsToFireGetter.Invoke(__instance, null);
+        float lastFireTime = (float)AimAndCrouchTogglesPlugin.lastFireTimeGetter.Invoke(__instance, null);
+        float lastPressedFireTime = (float)AimAndCrouchTogglesPlugin.lastPressedFireTimeField.GetValue(__instance);
+        Player player = (Player)AimAndCrouchTogglesPlugin.playerField.GetValue(__instance);
+        if (player != null && !isAiming && !wantsToFire && Time.time - Mathf.Max(lastFireTime, lastPressedFireTime) > 0.5f)
         {
-            bool isAiming = (bool)AimAndCrouchTogglesPlugin.isAimingGetter.Invoke(__instance, null);
-            bool wantsToFire = (bool)AimAndCrouchTogglesPlugin.wantsToFireGetter.Invoke(__instance, null);
-            float lastFireTime = (float)AimAndCrouchTogglesPlugin.lastFireTimeGetter.Invoke(__instance, null);
-            float lastPressedFireTime = (float)AimAndCrouchTogglesPlugin.lastPressedFireTimeField.GetValue(__instance);
-            Player player = (Player)AimAndCrouchTogglesPlugin.playerField.GetValue(__instance);
-            if (player != null && !isAiming && !wantsToFire && Time.time - Mathf.Max(lastFireTime, lastPressedFireTime) > 0.5f)
-            {
-                player.ResumeSprint();
-            }
+            player.ResumeSprint();
         }
     }
+
 
     [HarmonyPatch(typeof(Player), "Resurrect_ClientRpc")]
     [HarmonyPostfix]
